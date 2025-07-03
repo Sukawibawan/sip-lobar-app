@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP LOBAR - Pendataan Usaha Pariwisata</title>
+    
+    <!-- PWA Tags: Menghubungkan Manifest & Mengatur Tema -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0284c7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SIP LOBAR">
+    <link rel="apple-touch-icon" href="https://placehold.co/180x180/0284c7/FFFFFF?text=LOBAR">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right, #e0f2fe, #ccfbf1);
+            background-color: #e0f2fe;
+        }
+        .form-container { transition: opacity 0.3s ease-in-out; }
+        .tab-button { transition: all 0.2s ease-in-out; }
+        .tab-button.active {
+            border-color: #0284c7; background-color: #0284c7;
+            color: white; font-weight: 600;
+        }
+        .form-section {
+            background-color: white; border-radius: 0.75rem;
+            padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .input-group { margin-bottom: 1rem; }
+        .input-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4b5563; }
+        .input-field, .select-field {
+            width: 100%; padding: 0.75rem; border: 1px solid #d1d5db;
+            border-radius: 0.5rem; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-field:focus, .select-field:focus {
+            outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 2px #bae6fd;
+        }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background-color: #0ea5e9; color: white; }
+        .btn-primary:hover { background-color: #0284c7; }
+        .btn-primary:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        .btn-secondary { background-color: #e5e7eb; color: #374151; }
+        .btn-secondary:hover { background-color: #d1d5db; }
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 20px; height: 20px;
+            border-radius: 50%; border-left-color: #fff;
+            animation: spin 1s ease infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Lambang_Kabupaten_Lombok_Barat.png/160px-Lambang_Kabupaten_Lombok_Barat.png" alt="Logo Lombok Barat" class="mx-auto h-20 mb-4" onerror="this.onerror=null;this.src='https://placehold.co/160x160/e0f2fe/333?text=Logo';">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">SIP LOBAR</h1>
+            <p class="text-lg text-gray-600">Sistem Informasi Pendataan Usaha Pariwisata</p>
+        </header>
+
+        <nav class="mb-6">
+            <div class="flex flex-wrap justify-center gap-2">
+                <button data-form="akomodasi" class="tab-button active border border-gray-300 px-4 py-2 rounded-full text-sm md:text-base">🏨 Akomodasi</button>
+                <button data-form="makanminum" class="tab-button border border-gray-300 px-4 py-2 rounded-full text-sm md:text-base">🍽️ Makan Minum</button>
+                <button data-form="hiburan" class="tab-button border border-gray-300 px-4 py-2 rounded-full text-sm md:text-base">🎤 Hiburan</button>
+                <button data-form="perjalanan" class="tab-button border border-gray-300 px-4 py-2 rounded-full text-sm md:text-base">🚌 Perjalanan</button>
+                <button data-form="lainnya" class="tab-button border border-gray-300 px-4 py-2 rounded-full text-sm md:text-base">🏞️ Lainnya</button>
+            </div>
+        </nav>
+
+        <main>
+            <!-- Form Akomodasi -->
+            <div id="form-akomodasi" class="form-container">
+                <form class="form-section">
+                    <input type="hidden" name="formType" value="Akomodasi">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Akomodasi</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Alamat Lengkap</label><div class="flex gap-2"><input name="alamat" type="text" id="alamat-akomodasi" class="input-field"><button type="button" onclick="openMap('alamat-akomodasi')" class="btn btn-secondary whitespace-nowrap">Buka Peta</button></div></div>
+                        <div class="input-group"><label class="input-label">Nama Pemilik</label><input name="nama_pemilik" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Kategori Usaha</label><select name="kategori" id="kategori-akomodasi" class="select-field" required><option value="">Pilih Kategori...</option><option>Hotel Bintang 1</option><option>Hotel Bintang 2</option><option>Hotel Bintang 3</option><option>Hotel Bintang 4</option><option>Hotel Bintang 5</option><option>Hotel Melati</option><option>Villa</option><option>Cottage</option><option>Bungallow</option><option>Pondok Wisata</option><option>Homestay</option></select></div>
+                        <div id="hotel-bintang-fields" class="hidden md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div id="suite-field-container" class="input-group"><label class="input-label">Jml Kamar Suite</label><input name="jml_kamar_suite" type="number" class="input-field" value="0"></div>
+                            <div class="input-group"><label class="input-label">Jml Kamar Deluxe</label><input name="jml_kamar_deluxe" type="number" class="input-field" value="0"></div>
+                            <div class="input-group"><label class="input-label">Jml Kamar Superior</label><input name="jml_kamar_superior" type="number" class="input-field" value="0"></div>
+                        </div>
+                        <div class="input-group"><label class="input-label">Total Jumlah Kamar</label><input name="total_kamar" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Total Tempat Tidur</label><input name="total_tempat_tidur" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Tenaga Kerja Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Tenaga Kerja Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
+                    </div>
+                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                </form>
+            </div>
+
+            <!-- Form Makan Minum -->
+            <div id="form-makanminum" class="form-container hidden">
+                 <form class="form-section">
+                    <input type="hidden" name="formType" value="MakanMinum">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Makan & Minum</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Alamat Lengkap</label><div class="flex gap-2"><input name="alamat" type="text" id="alamat-makanminum" class="input-field"><button type="button" onclick="openMap('alamat-makanminum')" class="btn btn-secondary whitespace-nowrap">Buka Peta</button></div></div>
+                        <div class="input-group"><label class="input-label">Nama Pemilik</label><input name="nama_pemilik" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Kategori</label><select name="kategori" class="select-field" required><option value="">Pilih...</option><option>Restoran</option><option>Rumah Makan</option><option>Warung Makan</option><option>Katering</option><option>Cafe</option></select></div>
+                        <div class="input-group"><label class="input-label">Jenis Makanan</label><select name="jenis_makanan" class="select-field" required><option value="">Pilih...</option><option>Indonesia</option><option>Barat</option><option>Asia</option><option>Timur Tengah</option></select></div>
+                        <div class="input-group"><label class="input-label">Jumlah Meja</label><input name="jml_meja" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Jumlah Kursi</label><input name="jml_kursi" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">TK Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">TK Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
+                    </div>
+                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                </form>
+            </div>
+            
+            <!-- Form Hiburan -->
+            <div id="form-hiburan" class="form-container hidden">
+                <form class="form-section">
+                    <input type="hidden" name="formType" value="HiburanUmum">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Hiburan Umum</h2>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Alamat Lengkap</label><div class="flex gap-2"><input name="alamat" type="text" id="alamat-hiburan" class="input-field"><button type="button" onclick="openMap('alamat-hiburan')" class="btn btn-secondary whitespace-nowrap">Buka Peta</button></div></div>
+                        <div class="input-group"><label class="input-label">Nama Pemilik</label><input name="nama_pemilik" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Kategori Usaha</label><select name="kategori" id="kategori-hiburan" class="select-field" required><option value="">Pilih...</option><option>Kelab Malam</option><option>Karaoke</option><option>Bar</option><option>Spa</option></select></div>
+                        <div id="hiburan-meja-kursi" class="hidden input-group"><label class="input-label">Jml Meja & Kursi</label><input name="jml_meja_kursi" type="number" class="input-field" value="0"></div>
+                        <div id="hiburan-bilik" class="hidden input-group"><label class="input-label">Jml Bilik</label><input name="jml_bilik" type="number" class="input-field" value="0"></div>
+                        <div class="input-group"><label class="input-label">TK Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">TK Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
+                    </div>
+                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                </form>
+            </div>
+
+            <!-- Form Perjalanan -->
+            <div id="form-perjalanan" class="form-container hidden">
+                 <form class="form-section">
+                    <input type="hidden" name="formType" value="PerjalananWisata">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Perjalanan Wisata</h2>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Alamat Lengkap</label><div class="flex gap-2"><input name="alamat" type="text" id="alamat-perjalanan" class="input-field"><button type="button" onclick="openMap('alamat-perjalanan')" class="btn btn-secondary whitespace-nowrap">Buka Peta</button></div></div>
+                        <div class="input-group"><label class="input-label">Nama Pemilik</label><input name="nama_pemilik" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Kategori Usaha</label><select name="kategori" class="select-field" required><option value="">Pilih...</option><option>Biro Perjalanan Wisata</option><option>Travel Agent</option></select></div>
+                        <div class="input-group"><label class="input-label">Jumlah Armada</label><input name="jml_armada" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">TK Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">TK Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
+                    </div>
+                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                </form>
+            </div>
+
+            <!-- Form Lainnya -->
+            <div id="form-lainnya" class="form-container hidden">
+                <form class="form-section">
+                    <input type="hidden" name="formType" value="PariwisataLainnya">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Pariwisata Lainnya</h2>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Alamat Lengkap</label><div class="flex gap-2"><input name="alamat" type="text" id="alamat-lainnya" class="input-field"><button type="button" onclick="openMap('alamat-lainnya')" class="btn btn-secondary whitespace-nowrap">Buka Peta</button></div></div>
+                        <div class="input-group"><label class="input-label">Nama Pengelola</label><input name="nama_pengelola" type="text" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Kategori (Manual)</label><input name="kategori_manual" type="text" class="input-field" placeholder="Cth: Arung Jeram" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Fasilitas (Manual)</label><textarea name="fasilitas_manual" class="input-field" rows="3" placeholder="Sebutkan fasilitas..."></textarea></div>
+                        <div class="input-group"><label class="input-label">TK Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
+                        <div class="input-group"><label class="input-label">TK Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
+                    </div>
+                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // PWA Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').then(registration => {
+                        console.log('ServiceWorker berhasil didaftarkan: ', registration.scope);
+                    }, err => {
+                        console.log('Pendaftaran ServiceWorker gagal: ', err);
+                    });
+                });
+            }
+
+            const tabs = document.querySelectorAll('.tab-button');
+            const forms = document.querySelectorAll('.form-container');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    forms.forEach(f => f.classList.add('hidden'));
+                    tab.classList.add('active');
+                    document.getElementById('form-' + tab.dataset.form).classList.remove('hidden');
+                });
+            });
+            
+            const kategoriAkomodasi = document.getElementById('kategori-akomodasi');
+            const hotelBintangFields = document.getElementById('hotel-bintang-fields');
+            const suiteFieldContainer = document.getElementById('suite-field-container');
+            kategoriAkomodasi.addEventListener('change', function() {
+                const selectedValue = this.value;
+                const isBintang = selectedValue.includes('Hotel Bintang');
+                if (isBintang) {
+                    hotelBintangFields.classList.remove('hidden');
+                    const isBintang3Plus = ['Hotel Bintang 3', 'Hotel Bintang 4', 'Hotel Bintang 5'].includes(selectedValue);
+                    if (isBintang3Plus) {
+                        suiteFieldContainer.classList.remove('hidden');
+                        hotelBintangFields.classList.add('md:grid-cols-3');
+                        hotelBintangFields.classList.remove('md:grid-cols-2');
+                    } else {
+                        suiteFieldContainer.classList.add('hidden');
+                        hotelBintangFields.classList.add('md:grid-cols-2');
+                        hotelBintangFields.classList.remove('md:grid-cols-3');
+                    }
+                } else {
+                    hotelBintangFields.classList.add('hidden');
+                }
+            });
+
+            const kategoriHiburan = document.getElementById('kategori-hiburan');
+            const hiburanMejaKursi = document.getElementById('hiburan-meja-kursi');
+            const hiburanBilik = document.getElementById('hiburan-bilik');
+            kategoriHiburan.addEventListener('change', function() {
+                const value = this.value;
+                hiburanMejaKursi.classList.add('hidden');
+                hiburanBilik.classList.add('hidden');
+                if (value === 'Kelab Malam' || value === 'Bar') {
+                    hiburanMejaKursi.classList.remove('hidden');
+                } else if (value === 'Karaoke' || value === 'Spa') {
+                    hiburanBilik.classList.remove('hidden');
+                }
+            });
+
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbz8TEFWxG48nvpAGEWdD0PYgVdri_6HQux1QxksSmd-z64rmPvTHntuU6zg0g521CLy/exec';
+
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    const originalButtonHTML = submitButton.innerHTML;
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `<div class="spinner"></div><span>Menyimpan...</span>`;
+
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+
+                    fetch(scriptURL, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                        redirect: 'follow'
+                    })
+                    .then(response => {
+                        alert('Sukses! Data telah dikirim untuk disimpan.');
+                        this.reset();
+                        kategoriAkomodasi.dispatchEvent(new Event('change'));
+                        kategoriHiburan.dispatchEvent(new Event('change'));
+                    })
+                    .catch(error => {
+                        console.error('Error!', error.message);
+                        alert('Gagal menyimpan data. Cek koneksi internet atau hubungi administrator.');
+                    })
+                    .finally(() => {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonHTML;
+                    });
+                });
+            });
+        });
+
+        function openMap(inputId) {
+            const address = document.getElementById(inputId).value;
+            if (address) {
+                const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+                window.open(url, '_blank');
+            } else {
+                alert('Silakan isi alamat terlebih dahulu.');
+            }
+        }
+    </script>
+
+</body>
+</html>
