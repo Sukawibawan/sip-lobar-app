@@ -21,45 +21,6 @@
             font-family: 'Inter', sans-serif;
             background-color: #f0f9ff;
         }
-        /* PERUBAHAN DESAIN: Header menjadi Banner dengan Gradien Warna */
-        .header-banner {
-            position: relative;
-            width: 100%;
-            height: 320px;
-            /* Mengganti gambar dengan gradien yang senada */
-            background: linear-gradient(135deg, #0ea5e9, #0284c7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            border-radius: 0.75rem; /* rounded-lg */
-            overflow: hidden;
-        }
-        .header-content {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .header-logo {
-            height: 100px;
-            margin-bottom: 1rem;
-        }
-        .header-title {
-            font-size: 3rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-        }
-        .header-subtitle {
-            font-size: 1.25rem;
-            opacity: 0.9;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
         .form-container { transition: opacity 0.3s ease-in-out; }
         .tab-button { transition: all 0.2s ease-in-out; }
         .tab-button.active {
@@ -99,22 +60,17 @@
 </head>
 <body class="antialiased">
 
-    <!-- PERUBAHAN STRUKTUR: Semua konten masuk ke dalam satu kontainer utama -->
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         
-        <!-- Header Banner yang Baru -->
-        <header class="header-banner">
-            <!-- Overlay tidak lagi diperlukan karena menggunakan gradien solid -->
-            <div class="header-content">
-                <img src="https://lombokbaratkab.go.id/wp-content/uploads/2025/Lobar.png" alt="Logo Lombok Barat" class="header-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x160/e0f2fe/333?text=Logo';">
-                <h1 class="header-title">PATAKA</h1>
-                <p class="header-subtitle">Pariwisata Terkelola dan Terkendali</p>
-            </div>
+        <!-- PERUBAHAN DESAIN: Header disederhanakan, logo diperbesar -->
+        <header class="text-center pt-12 pb-8">
+            <img src="https://lombokbaratkab.go.id/wp-content/uploads/2025/Lobar.png" alt="Logo Lombok Barat" class="mx-auto h-48 mb-4" onerror="this.onerror=null;this.src='https://placehold.co/200x200/e0f2fe/333?text=Logo';">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 tracking-wide">PATAKA</h1>
+            <p class="text-xl text-gray-600 mt-1">Pariwisata Terkelola dan Terkendali</p>
         </header>
 
         <main>
-            <!-- Navigasi dengan margin atas untuk memberi jarak dari banner -->
-            <nav class="mt-6 mb-6 bg-white p-3 rounded-lg shadow-md">
+            <nav class="my-6 bg-white p-3 rounded-lg shadow-md">
                 <div class="flex flex-wrap justify-center gap-2">
                     <button data-form="akomodasi" class="tab-button active border border-gray-300 px-4 py-2 rounded-full text-sm md:text-base">🏨 Akomodasi</button>
                     <button data-form="makanminum" class="tab-button border border-gray-300 px-4 py-2 rounded-full text-sm md:text-base">🍽️ Makan Minum</button>
