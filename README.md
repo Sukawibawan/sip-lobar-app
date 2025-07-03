@@ -1,2 +1,2 @@
-# sip-lobar-app
-Sistem Informasi Usaha Pariwisata Lombok Barat
+# PATAKA-APP
+PARIWISATA TERKELOLA DAN TERKENDALI
