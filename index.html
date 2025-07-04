@@ -224,7 +224,8 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvq0xs5fGt203D_MaVq5Tsdhpi0DzlGXbqhOzctXk/dev';
+        // PERUBAHAN: URL SCRIPT DIPERBARUI
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyjaSPrUlkvtnlwkOdOx_02MyDx3Nmn5-W0_pdm3MVfM9dNKX16wV033w7s4YEmB35/exec';
         
         // Data Wilayah Administrasi Lombok Barat
         const addressData = {
@@ -319,6 +320,12 @@
                     field.value = data[key];
                     if(field.tagName === 'SELECT') {
                         field.dispatchEvent(new Event('change'));
+                        if(field.name === 'kecamatan') {
+                            setTimeout(() => {
+                                const desaField = form.querySelector(`[name="desa"]`);
+                                if(desaField) desaField.value = data.desa;
+                            }, 100);
+                        }
                     }
                 }
             }
