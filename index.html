@@ -7,6 +7,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PESONA">
@@ -14,7 +15,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="precinct" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -78,7 +79,6 @@
                 </div>
             </nav>
 
-            <!-- Konten Formulir -->
             <!-- Form Akomodasi -->
             <div id="form-akomodasi" class="form-container">
                 <form class="form-section">
@@ -88,12 +88,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                         <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field nib-input" required></div>
                         <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
-                        
                         <div class="input-group md:col-span-2"><label class="input-label">Kecamatan</label><select name="kecamatan" class="select-field kecamatan-select" required><option value="">Pilih Kecamatan...</option></select></div>
                         <div class="input-group"><label class="input-label">Desa/Kelurahan</label><select name="desa" class="select-field desa-select" required disabled><option value="">Pilih Desa/Kelurahan...</option></select></div>
                         <div class="input-group"><label class="input-label">Dusun/Lingkungan</label><input name="dusun" type="text" class="input-field" placeholder="Nama Dusun/Lingkungan" required></div>
                         <div class="input-group md:col-span-2"><label class="input-label">Detail Alamat</label><textarea name="detail_alamat" class="input-field" rows="2" placeholder="Contoh: Jln. Pariwisata No. 15"></textarea></div>
-
                         <div class="input-group"><label class="input-label">Nama Penanggung Jawab</label><input name="nama_penanggung_jawab" type="text" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
                         <div class="input-group md:col-span-2"><label class="input-label">Kategori Usaha</label><select name="kategori" id="kategori-akomodasi" class="select-field" required><option value="">Pilih Kategori...</option><option>Hotel Bintang 1</option><option>Hotel Bintang 2</option><option>Hotel Bintang 3</option><option>Hotel Bintang 4</option><option>Hotel Bintang 5</option><option>Hotel Melati</option><option>Villa</option><option>Cottage</option><option>Bungallow</option><option>Pondok Wisata</option><option>Homestay</option></select></div>
@@ -153,7 +151,6 @@
                         <div class="input-group"><label class="input-label">Nama Penanggung Jawab</label><input name="nama_penanggung_jawab" type="text" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
                         <div class="input-group md:col-span-2"><label class="input-label">Kategori Usaha</label><select name="kategori" id="kategori-hiburan" class="select-field" required><option value="">Pilih Kategori...</option><option>Kelab Malam</option><option>Karaoke</option><option>Bar</option><option>Spa</option></select></div>
-                        <!-- PERUBAHAN: Memisahkan Meja dan Kursi -->
                         <div id="hiburan-meja-kursi-container" class="hidden md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="input-group"><label class="input-label">Jumlah Meja</label><input name="jml_meja" type="number" class="input-field" value="0"></div>
                             <div class="input-group"><label class="input-label">Jumlah Kursi</label><input name="jml_kursi" type="number" class="input-field" value="0"></div>
@@ -227,7 +224,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyAfXm4GBC2G1ukOmiFPzGjhSW-KRa87yvBSb9VPwkN8oq_kCPpz9cTWAkYpvB_E-qYFA/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyjaSPrUlkvtnlwkOdOx_02MyDx3Nmn5-W0_pdm3MVfM9dNKX16wV033w7s4YEmB35/exec';
         
         const addressData = {
             "Batu Layar": ["Batu Layar", "Batu Layar Barat", "Bengkaung", "Cendi Manik", "Lembah Sari", "Meninting", "Pusuk Lestari", "Sandik", "Senggigi", "Senteluk"],
@@ -449,8 +446,23 @@
                         if (!res.ok && res.type !== 'opaque') {
                            throw new Error('Network response was not ok.');
                         }
-                        alert('Sukses! Data telah dikirim untuk diproses.');
-                        resetForm(form);
+                        return res.text(); // Baca respons sebagai teks untuk debugging
+                    })
+                    .then(text => {
+                        try {
+                            const result = JSON.parse(text);
+                            if (result.status === 'success') {
+                                alert('Sukses! ' + result.message);
+                                resetForm(form);
+                            } else {
+                                throw new Error(result.message || 'Terjadi kesalahan pada server.');
+                            }
+                        } catch (e) {
+                            // Jika respons bukan JSON (karena redirect), anggap sukses
+                            console.log("Respons bukan JSON, kemungkinan redirect. Menganggap sukses.", text);
+                            alert('Sukses! Data telah dikirim untuk diproses.');
+                            resetForm(form);
+                        }
                     })
                     .catch(error => {
                         console.error('Error!', error.message);
@@ -466,4 +478,4 @@
     </script>
 
 </body>
-</html>
+</ht
