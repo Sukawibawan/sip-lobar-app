@@ -31,7 +31,7 @@
             background-color: white; border-radius: 0.75rem;
             padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        .input-group { margin-bottom: 1rem; }
+        .input-group { margin-bottom: 1rem; position: relative; }
         .input-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4b5563; }
         .input-field, .select-field {
             width: 100%; padding: 0.75rem; border: 1px solid #d1d5db;
@@ -40,7 +40,8 @@
         .input-field:focus, .select-field:focus {
             outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 2px #bae6fd;
         }
-        .input-field[readonly] { background-color: #f3f4f6; cursor: pointer; }
+        .input-field[readonly] { background-color: #e5e7eb; cursor: not-allowed; }
+        .select-field:disabled { background-color: #f3f4f6; cursor: not-allowed; }
         .btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .btn-primary { background-color: #0ea5e9; color: white; }
         .btn-primary:hover { background-color: #0284c7; }
@@ -54,8 +55,6 @@
             animation: spin 1s ease infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        #map-modal { transition: opacity 0.3s ease-in-out; }
-        #map-container { height: 100%; width: 100%; }
     </style>
 </head>
 <body class="antialiased">
@@ -84,18 +83,18 @@
             <div id="form-akomodasi" class="form-container">
                 <form class="form-section">
                     <input type="hidden" name="formType" value="Akomodasi">
+                    <input type="hidden" name="rowIndex" value="">
                     <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Akomodasi</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field nib-input" required></div>
                         <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
-                        <div class="input-group md:col-span-2">
-                            <label class="input-label">Alamat Lengkap</label>
-                            <div class="flex gap-2">
-                                <input name="alamat" type="text" id="alamat-akomodasi" class="input-field" readonly placeholder="Tekan tombol 'Pilih Peta' ->" required>
-                                <button type="button" onclick="openMapModal('alamat-akomodasi', 'lat-akomodasi', 'lng-akomodasi')" class="btn btn-secondary whitespace-nowrap">Pilih Peta</button>
-                            </div>
-                            <input type="hidden" name="latitude" id="lat-akomodasi"><input type="hidden" name="longitude" id="lng-akomodasi">
-                        </div>
+                        
+                        <!-- Input Alamat Berjenjang -->
+                        <div class="input-group md:col-span-2"><label class="input-label">Kecamatan</label><select name="kecamatan" class="select-field kecamatan-select" required><option value="">Pilih Kecamatan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Desa/Kelurahan</label><select name="desa" class="select-field desa-select" required disabled><option value="">Pilih Desa/Kelurahan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Dusun/Lingkungan</label><input name="dusun" type="text" class="input-field" placeholder="Nama Dusun/Lingkungan" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Detail Alamat</label><textarea name="detail_alamat" class="input-field" rows="2" placeholder="Contoh: Jln. Pariwisata No. 15"></textarea></div>
+
                         <div class="input-group"><label class="input-label">Nama Penanggung Jawab</label><input name="nama_penanggung_jawab" type="text" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
                         <div class="input-group md:col-span-2"><label class="input-label">Kategori Usaha</label><select name="kategori" id="kategori-akomodasi" class="select-field" required><option value="">Pilih Kategori...</option><option>Hotel Bintang 1</option><option>Hotel Bintang 2</option><option>Hotel Bintang 3</option><option>Hotel Bintang 4</option><option>Hotel Bintang 5</option><option>Hotel Melati</option><option>Villa</option><option>Cottage</option><option>Bungallow</option><option>Pondok Wisata</option><option>Homestay</option></select></div>
@@ -109,7 +108,7 @@
                         <div class="input-group"><label class="input-label">Tenaga Kerja Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Tenaga Kerja Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
                     </div>
-                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                    <div class="mt-6 flex justify-end gap-3"><button type="button" class="btn-reset btn btn-secondary">Reset</button><button type="submit" class="btn btn-primary flex items-center justify-center gap-2">Simpan Data</button></div>
                 </form>
             </div>
 
@@ -117,18 +116,15 @@
             <div id="form-makanminum" class="form-container hidden">
                 <form class="form-section">
                     <input type="hidden" name="formType" value="MakanMinum">
+                    <input type="hidden" name="rowIndex" value="">
                     <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Makan & Minum</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field nib-input" required></div>
                         <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
-                        <div class="input-group md:col-span-2">
-                            <label class="input-label">Alamat Lengkap</label>
-                            <div class="flex gap-2">
-                                <input name="alamat" type="text" id="alamat-makanminum" class="input-field" readonly placeholder="Tekan tombol 'Pilih Peta' ->" required>
-                                <button type="button" onclick="openMapModal('alamat-makanminum', 'lat-makanminum', 'lng-makanminum')" class="btn btn-secondary whitespace-nowrap">Pilih Peta</button>
-                            </div>
-                            <input type="hidden" name="latitude" id="lat-makanminum"><input type="hidden" name="longitude" id="lng-makanminum">
-                        </div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Kecamatan</label><select name="kecamatan" class="select-field kecamatan-select" required><option value="">Pilih Kecamatan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Desa/Kelurahan</label><select name="desa" class="select-field desa-select" required disabled><option value="">Pilih Desa/Kelurahan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Dusun/Lingkungan</label><input name="dusun" type="text" class="input-field" placeholder="Nama Dusun/Lingkungan" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Detail Alamat</label><textarea name="detail_alamat" class="input-field" rows="2" placeholder="Contoh: Jln. Pariwisata No. 15"></textarea></div>
                         <div class="input-group"><label class="input-label">Nama Penanggung Jawab</label><input name="nama_penanggung_jawab" type="text" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Kategori</label><select name="kategori" class="select-field" required><option value="">Pilih Kategori...</option><option>Restoran</option><option>Rumah Makan</option><option>Warung Makan</option><option>Katering</option><option>Cafe</option></select></div>
@@ -138,7 +134,7 @@
                         <div class="input-group"><label class="input-label">Tenaga Kerja Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Tenaga Kerja Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
                     </div>
-                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                    <div class="mt-6 flex justify-end gap-3"><button type="button" class="btn-reset btn btn-secondary">Reset</button><button type="submit" class="btn btn-primary flex items-center justify-center gap-2">Simpan Data</button></div>
                 </form>
             </div>
 
@@ -146,18 +142,15 @@
             <div id="form-hiburan" class="form-container hidden">
                 <form class="form-section">
                     <input type="hidden" name="formType" value="HiburanUmum">
+                    <input type="hidden" name="rowIndex" value="">
                     <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Hiburan Umum</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field nib-input" required></div>
                         <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
-                        <div class="input-group md:col-span-2">
-                            <label class="input-label">Alamat Lengkap</label>
-                            <div class="flex gap-2">
-                                <input name="alamat" type="text" id="alamat-hiburan" class="input-field" readonly placeholder="Tekan tombol 'Pilih Peta' ->" required>
-                                <button type="button" onclick="openMapModal('alamat-hiburan', 'lat-hiburan', 'lng-hiburan')" class="btn btn-secondary whitespace-nowrap">Pilih Peta</button>
-                            </div>
-                            <input type="hidden" name="latitude" id="lat-hiburan"><input type="hidden" name="longitude" id="lng-hiburan">
-                        </div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Kecamatan</label><select name="kecamatan" class="select-field kecamatan-select" required><option value="">Pilih Kecamatan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Desa/Kelurahan</label><select name="desa" class="select-field desa-select" required disabled><option value="">Pilih Desa/Kelurahan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Dusun/Lingkungan</label><input name="dusun" type="text" class="input-field" placeholder="Nama Dusun/Lingkungan" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Detail Alamat</label><textarea name="detail_alamat" class="input-field" rows="2" placeholder="Contoh: Jln. Pariwisata No. 15"></textarea></div>
                         <div class="input-group"><label class="input-label">Nama Penanggung Jawab</label><input name="nama_penanggung_jawab" type="text" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
                         <div class="input-group md:col-span-2"><label class="input-label">Kategori Usaha</label><select name="kategori" id="kategori-hiburan" class="select-field" required><option value="">Pilih Kategori...</option><option>Kelab Malam</option><option>Karaoke</option><option>Bar</option><option>Spa</option></select></div>
@@ -166,7 +159,7 @@
                         <div class="input-group"><label class="input-label">Tenaga Kerja Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Tenaga Kerja Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
                     </div>
-                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                    <div class="mt-6 flex justify-end gap-3"><button type="button" class="btn-reset btn btn-secondary">Reset</button><button type="submit" class="btn btn-primary flex items-center justify-center gap-2">Simpan Data</button></div>
                 </form>
             </div>
 
@@ -174,18 +167,15 @@
             <div id="form-perjalanan" class="form-container hidden">
                 <form class="form-section">
                     <input type="hidden" name="formType" value="PerjalananWisata">
+                    <input type="hidden" name="rowIndex" value="">
                     <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Perjalanan Wisata</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field nib-input" required></div>
                         <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
-                        <div class="input-group md:col-span-2">
-                            <label class="input-label">Alamat Lengkap</label>
-                            <div class="flex gap-2">
-                                <input name="alamat" type="text" id="alamat-perjalanan" class="input-field" readonly placeholder="Tekan tombol 'Pilih Peta' ->" required>
-                                <button type="button" onclick="openMapModal('alamat-perjalanan', 'lat-perjalanan', 'lng-perjalanan')" class="btn btn-secondary whitespace-nowrap">Pilih Peta</button>
-                            </div>
-                            <input type="hidden" name="latitude" id="lat-perjalanan"><input type="hidden" name="longitude" id="lng-perjalanan">
-                        </div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Kecamatan</label><select name="kecamatan" class="select-field kecamatan-select" required><option value="">Pilih Kecamatan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Desa/Kelurahan</label><select name="desa" class="select-field desa-select" required disabled><option value="">Pilih Desa/Kelurahan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Dusun/Lingkungan</label><input name="dusun" type="text" class="input-field" placeholder="Nama Dusun/Lingkungan" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Detail Alamat</label><textarea name="detail_alamat" class="input-field" rows="2" placeholder="Contoh: Jln. Pariwisata No. 15"></textarea></div>
                         <div class="input-group"><label class="input-label">Nama Penanggung Jawab</label><input name="nama_penanggung_jawab" type="text" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Kategori Usaha</label><select name="kategori" class="select-field" required><option value="">Pilih Kategori...</option><option>Biro Perjalanan Wisata</option><option>Travel Agent</option></select></div>
@@ -193,7 +183,7 @@
                         <div class="input-group"><label class="input-label">Tenaga Kerja Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Tenaga Kerja Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
                     </div>
-                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                    <div class="mt-6 flex justify-end gap-3"><button type="button" class="btn-reset btn btn-secondary">Reset</button><button type="submit" class="btn btn-primary flex items-center justify-center gap-2">Simpan Data</button></div>
                 </form>
             </div>
 
@@ -201,18 +191,15 @@
             <div id="form-lainnya" class="form-container hidden">
                 <form class="form-section">
                     <input type="hidden" name="formType" value="PariwisataLainnya">
+                    <input type="hidden" name="rowIndex" value="">
                     <h2 class="text-2xl font-semibold mb-6 text-gray-700">Formulir Usaha Pariwisata Lainnya</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field" required></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <div class="input-group"><label class="input-label">NIB</label><input name="nib" type="text" class="input-field nib-input" required></div>
                         <div class="input-group"><label class="input-label">Nama Usaha</label><input name="nama_usaha" type="text" class="input-field" required></div>
-                        <div class="input-group md:col-span-2">
-                            <label class="input-label">Alamat Lengkap</label>
-                            <div class="flex gap-2">
-                                <input name="alamat" type="text" id="alamat-lainnya" class="input-field" readonly placeholder="Tekan tombol 'Pilih Peta' ->" required>
-                                <button type="button" onclick="openMapModal('alamat-lainnya', 'lat-lainnya', 'lng-lainnya')" class="btn btn-secondary whitespace-nowrap">Pilih Peta</button>
-                            </div>
-                            <input type="hidden" name="latitude" id="lat-lainnya"><input type="hidden" name="longitude" id="lng-lainnya">
-                        </div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Kecamatan</label><select name="kecamatan" class="select-field kecamatan-select" required><option value="">Pilih Kecamatan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Desa/Kelurahan</label><select name="desa" class="select-field desa-select" required disabled><option value="">Pilih Desa/Kelurahan...</option></select></div>
+                        <div class="input-group"><label class="input-label">Dusun/Lingkungan</label><input name="dusun" type="text" class="input-field" placeholder="Nama Dusun/Lingkungan" required></div>
+                        <div class="input-group md:col-span-2"><label class="input-label">Detail Alamat</label><textarea name="detail_alamat" class="input-field" rows="2" placeholder="Contoh: Jln. Pariwisata No. 15"></textarea></div>
                         <div class="input-group"><label class="input-label">Nama Penanggung Jawab</label><input name="nama_penanggung_jawab" type="text" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Nomor Telepon</label><input name="telepon" type="tel" class="input-field" required></div>
                         <div class="input-group md:col-span-2"><label class="input-label">Kategori (Isi Manual)</label><input name="kategori_manual" type="text" class="input-field" placeholder="Contoh: Arung Jeram, Desa Wisata" required></div>
@@ -220,108 +207,186 @@
                         <div class="input-group"><label class="input-label">Tenaga Kerja Pria</label><input name="tk_pria" type="number" class="input-field" required></div>
                         <div class="input-group"><label class="input-label">Tenaga Kerja Wanita</label><input name="tk_wanita" type="number" class="input-field" required></div>
                     </div>
-                    <div class="mt-6 flex justify-end"><button type="submit" class="btn btn-primary flex items-center justify-center gap-2 w-full md:w-auto">Simpan Data</button></div>
+                    <div class="mt-6 flex justify-end gap-3"><button type="button" class="btn-reset btn btn-secondary">Reset</button><button type="submit" class="btn btn-primary flex items-center justify-center gap-2">Simpan Data</button></div>
                 </form>
             </div>
         </main>
-    </div>
+        
+        <footer class="text-center mt-12 py-4 border-t border-gray-200">
+            <a href="https://dispar.lombokbaratkab.go.id" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-semibold transition">
+                Kunjungi Portal Resmi Dinas Pariwisata Lombok Barat
+            </a>
+            <p class="text-gray-500 text-sm mt-2">
+                © 2025 Dispar Lombok Barat. All Rights Reserved.
+            </p>
+        </footer>
 
-    <!-- Map Modal -->
-    <div id="map-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full h-full max-w-4xl flex flex-col">
-            <div class="p-4 border-b flex justify-between items-center">
-                <h3 class="text-xl font-semibold">Geser Pin untuk Memilih Lokasi</h3>
-                <button id="close-map-modal" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
-            </div>
-            <div id="map-container" class="flex-grow">
-                <!-- Peta akan dirender di sini oleh JavaScript -->
-            </div>
-            <div class="p-4 bg-gray-50 border-t text-right">
-                <button id="confirm-location-btn" class="btn btn-primary">Konfirmasi Lokasi</button>
-            </div>
-        </div>
     </div>
 
     <script>
-        // --- PENTING: Ganti 'YOUR_API_KEY' dengan Kunci API Google Maps Anda ---
-        const GOOGLE_MAPS_API_KEY = 'YOUR_API_KEY';
-    </script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvq0xs5fGt203D_MaVq5Tsdhpi0DzlGXbqhOzctXk/dev';
+        
+        // Data Wilayah Administrasi Lombok Barat
+        const addressData = {
+            "Batu Layar": ["Batu Layar", "Batu Layar Barat", "Bengkaung", "Cendi Manik", "Lembah Sari", "Meninting", "Pusuk Lestari", "Sandik", "Senggigi", "Senteluk"],
+            "Gerung": ["Banyu Urip", "Beleke", "Dasri", "Gapuk", "Gerung Selatan", "Gerung Utara", "Giri Tembesi", "Hygienis", "Kebun Ayu", "Mesanggok", "Ranjok", "Suka Makmur", "Taman Ayu", "Tembeng Putik"],
+            "Gunungsari": ["Bukit Tinggi", "Dopang", "Guntur Macan", "Gunungsari", "Jatisela", "Jeringo", "Kekait", "Kekeri", "Mekarsari", "Midang", "Nambalan", "Penimbung", "Ranjok", "Selat", "Sesela", "Taman Sari"],
+            "Kediri": ["Banyumulek", "Dasri", "Gelogor", "Jagaraga Indah", "Kediri", "Kediri Selatan", "Lelede", "Montong Are", "Ombe Baru", "Rumak"],
+            "Kuripan": ["Giri Sasak", "Jagaraga", "Kuripan", "Kuripan Selatan", "Kuripan Utara"],
+            "Labuapi": ["Bagik Polak", "Bajur", "Bengkel", "Karang Bongkot", "Kuranji", "Kuranji Dalang", "Labuapi", "Merembu", "Perampuan", "Telagawaru", "Terong Tawah"],
+            "Lembar": ["Eyat Mayang", "Jembatan Gantung", "Jembatan Kembar", "Jembatan Kembar Timur", "Labuan Kereng", "Labuan Tereng", "Lembar", "Lembar Selatan", "Mareje", "Mareje Timur", "Sekotong Timur"],
+            "Lingsar": ["Batu Kumbung", "Batu Mekar", "Bug-bug", "Dasri", "Duman", "Gegelang", "Gontoran", "Karang Bayan", "Langko", "Lingsar", "Peteluan Indah", "Sari Baye", "Sigerongan", "Taman Sari"],
+            "Narmada": ["Badran", "Batu Kuta", "Buwun Sejati", "Dasri", "Gerimak Indah", "Golong", "Krama Jaya", "Lebah Sempaga", "Narmada", "Nyur Lembang", "Pakuan", "Penyawong", "Peru", "Sedau", "Selat", "Sembung", "Sesaot", "Suranadi", "Tanak Beak", "Tanak Tepong", "Tegal Jawe"],
+            "Sekotong": ["Batu Putih", "Buwun Mas", "Cendi Manik", "Gili Gede Indah", "Kedaro", "Pelangan", "Sekotong Barat", "Sekotong Tengah", "Taman Baru"]
+        };
 
-    <script>
-        // Variabel Global untuk Peta
-        let map;
-        let marker;
-        let geocoder;
-        let activeAddressField, activeLatField, activeLngField;
-
-        function initMap() {
-            const lombokBaratCenter = { lat: -8.5833, lng: 116.1167 };
-            
-            map = new google.maps.Map(document.getElementById("map-container"), {
-                center: lombokBaratCenter,
-                zoom: 12,
+        function populateKecamatan(form) {
+            const kecamatanSelect = form.querySelector('.kecamatan-select');
+            if (!kecamatanSelect) return;
+            const kecamatanKeys = Object.keys(addressData);
+            kecamatanKeys.forEach(kecamatan => {
+                const option = document.createElement('option');
+                option.value = kecamatan;
+                option.textContent = kecamatan;
+                kecamatanSelect.appendChild(option);
             });
-
-            marker = new google.maps.Marker({
-                position: lombokBaratCenter,
-                map: map,
-                draggable: true,
-                title: "Geser saya!"
-            });
-
-            geocoder = new google.maps.Geocoder();
         }
 
-        function openMapModal(addressId, latId, lngId) {
-            activeAddressField = document.getElementById(addressId);
-            activeLatField = document.getElementById(latId);
-            activeLngField = document.getElementById(lngId);
+        function handleKecamatanChange(event) {
+            const kecamatanSelect = event.target;
+            const form = kecamatanSelect.closest('form');
+            const desaSelect = form.querySelector('.desa-select');
             
-            document.getElementById('map-modal').classList.remove('hidden');
+            desaSelect.innerHTML = '<option value="">Pilih Desa/Kelurahan...</option>';
+            desaSelect.disabled = true;
+
+            const selectedKecamatan = kecamatanSelect.value;
+            if (selectedKecamatan && addressData[selectedKecamatan]) {
+                const desaList = addressData[selectedKecamatan];
+                desaList.forEach(desa => {
+                    const option = document.createElement('option');
+                    option.value = desa;
+                    option.textContent = desa;
+                    desaSelect.appendChild(option);
+                });
+                desaSelect.disabled = false;
+            }
         }
 
-        function closeMapModal() {
-            const location = marker.getPosition();
-            geocoder.geocode({ 'location': location }, function(results, status) {
-                if (status === 'OK') {
-                    if (results[0]) {
-                        activeAddressField.value = results[0].formatted_address;
-                        activeLatField.value = location.lat();
-                        activeLngField.value = location.lng();
-                    } else {
-                        alert('Alamat tidak ditemukan.');
-                    }
+        async function checkNIB(event) {
+            const nibInput = event.target;
+            const nib = nibInput.value.trim();
+            const form = nibInput.closest('form');
+            if (nib.length < 10) return;
+
+            const formType = form.querySelector('input[name="formType"]').value;
+            const submitButton = form.querySelector('button[type="submit"]');
+            
+            nibInput.disabled = true;
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<div class="spinner"></div><span>Mengecek NIB...</span>`;
+
+            try {
+                const response = await fetch(`${SCRIPT_URL}?nib=${nib}&formType=${formType}`);
+                const result = await response.json();
+
+                if (result.status === 'found') {
+                    alert('Data NIB ditemukan. Mode Update Aktif.');
+                    populateForm(form, result.data);
+                    form.querySelector('input[name="rowIndex"]').value = result.rowIndex;
+                    nibInput.readOnly = true;
+                    submitButton.innerHTML = 'Update Data';
                 } else {
-                    alert('Geocoder gagal karena: ' + status);
+                    alert('NIB tidak ditemukan. Silakan isi data baru.');
+                    resetForm(form, nib);
+                    submitButton.innerHTML = 'Simpan Data Baru';
+                }
+            } catch (error) {
+                console.error('Error saat cek NIB:', error);
+                alert('Gagal menghubungi server. Pastikan koneksi internet stabil.');
+                submitButton.innerHTML = 'Simpan Data';
+            } finally {
+                nibInput.disabled = false;
+                submitButton.disabled = false;
+            }
+        }
+
+        function populateForm(form, data) {
+            for (const key in data) {
+                const formKey = (key === 'nama_pemilik' || key === 'nama_pengelola') ? 'nama_penanggung_jawab' : key;
+                const field = form.querySelector(`[name="${formKey}"]`);
+                if (field) {
+                    field.value = data[key];
+                    if(field.tagName === 'SELECT') {
+                        field.dispatchEvent(new Event('change'));
+                    }
+                }
+            }
+        }
+
+        function resetForm(form, nibToKeep = '') {
+            const formType = form.querySelector('input[name="formType"]').value;
+            form.reset();
+            form.querySelector('input[name="formType"]').value = formType;
+            const nibInput = form.querySelector('.nib-input');
+            nibInput.value = nibToKeep;
+            nibInput.readOnly = false;
+            form.querySelector('input[name="rowIndex"]').value = '';
+            form.querySelector('button[type="submit"]').innerHTML = 'Simpan Data';
+            
+            const desaSelect = form.querySelector('.desa-select');
+            desaSelect.innerHTML = '<option value="">Pilih Desa/Kelurahan...</option>';
+            desaSelect.disabled = true;
+
+            form.querySelectorAll('select').forEach(sel => {
+                if(sel.id === 'kategori-akomodasi' || sel.id === 'kategori-hiburan') {
+                    sel.dispatchEvent(new Event('change'));
                 }
             });
-            document.getElementById('map-modal').classList.add('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // PWA Service Worker Registration
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js').then(r => console.log('SW terdaftar'), e => console.log('SW gagal: ', e));
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(registration => console.log('SW terdaftar: ', registration.scope))
+                        .catch(error => console.error('Pendaftaran SW gagal:', error));
                 });
             }
-
-            // Event Listener untuk tombol-tombol peta
-            document.getElementById('close-map-modal').addEventListener('click', closeMapModal);
-            document.getElementById('confirm-location-btn').addEventListener('click', closeMapModal);
             
+            document.querySelectorAll('.kecamatan-select').forEach(sel => {
+                sel.addEventListener('change', handleKecamatanChange);
+            });
+            
+            document.querySelectorAll('form').forEach(form => {
+                populateKecamatan(form);
+            });
+
+            document.querySelectorAll('.nib-input').forEach(input => {
+                input.addEventListener('blur', checkNIB);
+            });
+
+            document.querySelectorAll('.btn-reset').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const form = e.target.closest('form');
+                    resetForm(form);
+                });
+            });
+
             const tabs = document.querySelectorAll('.tab-button');
             const forms = document.querySelectorAll('.form-container');
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     tabs.forEach(t => t.classList.remove('active'));
-                    forms.forEach(f => f.classList.add('hidden'));
+                    forms.forEach(f => {
+                        f.classList.add('hidden');
+                        resetForm(f.querySelector('form'));
+                    });
                     tab.classList.add('active');
                     document.getElementById('form-' + tab.dataset.form).classList.remove('hidden');
                 });
             });
             
-            // Logika form kondisional
             const kategoriAkomodasi = document.getElementById('kategori-akomodasi');
             const hotelBintangFields = document.getElementById('hotel-bintang-fields');
             const suiteFieldContainer = document.getElementById('suite-field-container');
@@ -359,8 +424,6 @@
                 }
             });
             
-            // Logika form submit
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbz8TEFWxG48nvpAGEWdD0PYgVdri_6HQux1QxksSmd-z64rmPvTHntuU6zg0g521CLy/exec';
             document.querySelectorAll('form').forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -370,37 +433,32 @@
                     submitButton.innerHTML = `<div class="spinner"></div><span>Menyimpan...</span>`;
                     const formData = new FormData(this);
                     const data = Object.fromEntries(formData.entries());
-                    fetch(scriptURL, {
-                        method: 'POST', mode: 'cors', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(data), redirect: 'follow'
+
+                    fetch(SCRIPT_URL, {
+                        method: 'POST', body: JSON.stringify(data),
+                        headers: {'Content-Type': 'application/json'}
                     })
-                    .then(() => {
-                        alert('Sukses! Data telah dikirim untuk disimpan.');
-                        this.reset();
-                        // Reset field kondisional
-                        kategoriAkomodasi.dispatchEvent(new Event('change'));
-                        kategoriHiburan.dispatchEvent(new Event('change'));
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.status === 'success') {
+                            alert('Sukses! ' + result.message);
+                            resetForm(form);
+                        } else {
+                            throw new Error(result.message);
+                        }
                     })
-                    .catch(error => console.error('Error!', error.message))
+                    .catch(error => {
+                        console.error('Error!', error.message);
+                        alert('Gagal menyimpan data: ' + error.message);
+                    })
                     .finally(() => {
                         submitButton.disabled = false;
-                        submitButton.innerHTML = originalButtonHTML;
+                        submitButton.innerHTML = "Simpan Data";
+                        resetForm(form);
                     });
                 });
             });
         });
-
-        // Memuat Google Maps API secara dinamis
-        (function() {
-            if (typeof google === 'object' && typeof google.maps === 'object') {
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap&libraries=marker,geocoding&v=weekly`;
-            script.defer = true;
-            script.async = true;
-            document.head.appendChild(script);
-        })();
     </script>
 
 </body>
