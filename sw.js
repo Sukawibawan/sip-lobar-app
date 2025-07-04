@@ -1,5 +1,5 @@
-// Nama cache untuk aplikasi kita, diperbarui untuk PESONA
-const CACHE_NAME = 'pesona-cache-v1';
+// Nama cache baru untuk memastikan pembaruan
+const CACHE_NAME = 'pesona-cache-v2';
 
 // Daftar file yang akan disimpan di cache untuk mode offline
 const urlsToCache = [
@@ -19,9 +19,8 @@ self.addEventListener('install', event => {
   );
 });
 
-// Event 'fetch': Dijalankan setiap kali aplikasi meminta sebuah sumber daya (file, gambar, dll.)
+// Event 'fetch': Dijalankan setiap kali aplikasi meminta sebuah sumber daya
 self.addEventListener('fetch', event => {
-  // Kita hanya menangani permintaan GET, bukan POST ke Google Script
   if (event.request.method !== 'GET') {
     return;
   }
@@ -48,6 +47,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            // Hapus cache yang tidak ada di whitelist (cache lama)
             return caches.delete(cacheName);
           }
         })
@@ -55,3 +55,4 @@ self.addEventListener('activate', event => {
     })
   );
 });
+
